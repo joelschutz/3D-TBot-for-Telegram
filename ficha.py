@@ -1,3 +1,4 @@
+
 import csv
 
 #Classe Personagem
@@ -85,37 +86,20 @@ class personagem:
         
     ##Funções
 
-    #Incrementa os pontos de acordo com a opção dada em "n"
-    def incrementar(self, n):
+    # Incrementa ou decremanta atributos "n" vezes
+    def modificar_atributos(self, atributo, n=1, soma=True):
         sellegal = ['f','h','r','a','p']
-        sel = n.lower()
-
-        if sel in sellegal:
-            self.atributos[sellegal.index(sel)] += 1
+        sel = atributo.lower()
+        if soma:
+            self.atributos[sellegal.index(sel)] += n
         else:
-            print('Essa opção não existe.')
-
-    #Decrementa os pontos de acordo com a opção dada em "n"
-    def decrementar(self, n):
-        sellegal = ['f','h','r','a','p']
-        sel = n.lower()
-
-        if sel in sellegal:
-            self.atributos[sellegal.index(sel)] -= 1
-        else:
-            print('Essa opção não existe.')
+            self.atributos[sellegal.index(sel)] -= n
 
     #Aplica os modificadores da lista dada em "n"
     def aplicar_modificadores(self, n):
         for i in n:
             if i != '0':
-                count = 0
-                while count < int(i[2]):
-                    if i[1] == '+':
-                        self.incrementar(i[0])
-                    else:
-                        self.decrementar(i[0])
-                    count += 1
+                self.modificar_atributos(i[0],i[2],(i[1]=='+'))
 
     #Retorna o nome da Vantagem ou Desvantagem dada em "n"            
     def nome_característica(self, n):
@@ -195,8 +179,6 @@ class personagem:
                     
                     count1 += 1
                 
-                
-            
 #Cria Personagem
 def criar(personagem, nome, level, raça):
     personagem.nome = nome
@@ -214,7 +196,7 @@ def distribuir_pontos(personagem):
     while personagem.pontos > 0:
         print(personagem.dados('atributos'))
         print(f'Lhe restam {personagem.pontos} pontos')
-        personagem.incrementar(input('Qual atributo quer evoluir?\n[Primeira Letra] ')) 
+        personagem.modificar_atributos(input('Qual atributo quer evoluir?\n[Primeira Letra] ')) 
         personagem.pontos -= 1         
     else:
         print('Não há mais pontos para distribuir!')
