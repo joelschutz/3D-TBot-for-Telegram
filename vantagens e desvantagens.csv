@@ -1,0 +1,138 @@
+Nome,Custo,Multiplas,Ativa,Passiva
+Aceleração,1,False,True,True
+Adaptador,1,False,False,True
+Aliado,1,True,False,True
+Alquimista,1,False,True,False
+Aparência Inofensiva,1,False,False,True
+Arcano,4,False,False,True
+Área de Batalha,2,False,True,False
+Arena,1,False,False,True
+Armadura Extra Força,NC,False,False,True
+Ataque Especial Amplo,2,True,True,False
+Ataque Especial Lento,-1,True,True,False
+Ataque Especial Paralisante,1,True,True,False
+Ataque Especial Penetrante,1,True,True,False
+Ataque Especial Perigoso,2,True,True,False
+Ataque Especial Perto da Morte,-2,True,True,False
+Ataque Especial Poderoso,2,True,True,False
+Ataque Especial Preciso,1,True,True,False
+Ataque Especial Teleguiado,1,True,True,False
+Ataque Múltiplo,1,False,True,False
+Boa Fama,1,False,False,True
+Clericato,1,False,False,True
+Deflexão,1,False,True,False
+Genialidade,1,False,False,True
+Elementalista,1,True,False,True
+Energia Extra,1,False,True,False
+Energia Vital,2,False,True,False
+Familiar,1,False,False,True
+Forma Alternativa,2,True,True,True
+Imortal 1,1,False,False,True
+Imortal 2,2,False,False,True
+Inimigo,1,True,False,True
+Invisibilidade,2,False,True,False
+Invulnerabilidade Força,NC,True,False,True
+Ligação Natural,1,False,False,True
+Magia Branca,2,False,False,True
+Magia Elemental,2,False,False,True
+Magia Negra,2,False,False,True
+Magia Irresistível 1,1,True,False,True
+Magia Irresistível 2,2,True,False,True
+Magia Irresistível 3,3,True,False,True
+Membros Elásticos,1,False,False,True
+Membros Extras,2,True,True,True
+Memória Expandida,2,False,True,True
+Mentor,1,False,False,True
+Paladino,1,False,False,True
+Paralisia,1,False,True,False
+Parceiro,1,True,False,True
+Patrono,1,False,True,True
+Poder Oculto,1,False,True,False
+Pontos de Magia Extras,1,True,False,True
+Pontos de Vida Extras,1,True,False,True
+Possessão,2,False,True,False
+Reflexão,2,False,True,False
+Regeneração,3,False,False,True
+Resistência a Magia,1,False,False,True
+Riqueza,2,False,True,True
+Sentidos Especiais Audição Aguçada,NC,True,True,False
+Sentidos Especiais Faro Aguçado,NC,True,True,False
+Separação,2,False,True,False
+Telepatia,1,False,True,False
+Teleporte,2,False,True,True
+Tiro Carregável,1,False,True,False
+Tiro Múltiplo,2,False,True,False
+Toque de Energia,1,True,True,False
+Torcida,1,False,False,True
+Vôo,2,False,False,True
+Xamã,1,False,False,True
+Ambiente Especial,-1,False,False,True
+Assombrado,-2,False,False,True
+Bateria,-1,False,False,True
+Código de Honra,-1,True,False,True
+Deficiência Física Audição Ruim,0,False,False,True
+Deficiência Física Cego,-2,False,False,True
+Deficiência Física Mudo,-1,False,False,True
+Deficiência Física Sem Faro,0,False,False,True
+Deficiência Física Surdo,-1,False,False,True
+Deficiência Física Visão Ruim,0,False,False,True
+Dependência,-2,False,False,True
+Devoção,-1,False,False,True
+Fetiche,-1,False,False,True
+Fúria,-1,False,False,True
+Inculto,-1,False,False,True
+Insano Cleptomaníaco,-1,False,False,True
+Insano Compulsivo,-1,False,False,True
+Insano Demente,-1,False,False,True
+Insano Depressivo,-2,False,False,True
+Insano Dupla Personalidade,0,False,False,True
+Insano Distraído,0,False,False,True
+Insano Fantasia,-1,False,False,True
+Insano Fobia 1,-1,False,False,True
+Insano Fobia 2,-2,False,False,True
+Insano Fobia 3,-3,False,False,True
+Insano Fúria,-1,False,False,True
+Insano Histérico,-2,False,False,True
+Insano Homicida,-2,False,False,True
+Insano Megalomaníaco,-1,False,False,True
+Insano Mentiroso,-1,False,False,True
+Insano Obsessivo,-1,False,False,True
+Insano Paranoico,-1,False,False,True
+Insano Sonâmbulo,0,False,False,True
+Insano Suicida,0,False,False,True
+Interferência,0,False,False,True
+Interferência Mágica,0,False,False,True
+Má Fama,-1,False,False,True
+Maldição Suave,-1,False,False,True
+Maldição Grave,-2,False,False,True
+Modelo Especial,-1,False,False,True
+Monstruoso,-1,False,False,True
+Munição Limitada,-1,False,False,True
+Poder Vergonhoso Agradável,-1,False,False,True
+Poder Vergonhoso Constrangedor,-1,False,False,True
+Poder Vergonhoso Exagerado,-1,False,False,True
+Poder Vergonhoso Hentai,0,False,False,True
+Poder Vingativo,-1,False,False,True
+Ponto Fraco,-1,False,False,True
+Protegido Indefeso,-1,True,False,True
+Restrição de Poder Incomum,-1,False,False,True
+Restrição de Poder Comum,-2,False,False,True
+Restrição de Poder Muito Comum,-3,False,False,True
+Vulnerabilidade Força,NC,True,False,True
+Sentidos Especiais Infravisão,NC,True,True,False
+Sentidos Especiais Radar,NC,True,True,False
+Sentidos Especiais Ver o Invisível,NC,True,True,False
+Sentidos Especiais Visão Aguçada,NC,True,True,False
+Sentidos Especiais Visão de Raio X,NC,True,True,False
+Armadura Extra Poder de Fogo,NC,False,False,True
+Armadura Extra Magia,NC,False,False,True
+Armadura Extra Dano Físico,NC,False,False,True
+Armadura Extra Dano por Energia,NC,False,False,True
+Invulnerabilidade Poder de Fogo,NC,False,False,True
+Invulnerabilidade Magia,NC,False,False,True
+Invulnerabilidade Dano Físico,NC,False,False,True
+Invulnerabilidade Dano por Energia,NC,False,False,True
+Vulnerabilidade Poder de Fogo,NC,False,False,True
+Vulnerabilidade Magia,NC,False,False,True
+Vulnerabilidade Dano Físico,NC,False,False,True
+Vulnerabilidade Dano por Energia,NC,False,False,True
