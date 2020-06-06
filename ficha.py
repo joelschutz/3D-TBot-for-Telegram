@@ -1,21 +1,21 @@
 import logging
-import meta
+
+
 
 #Classe Personagem
-class personagem:
-    def __init__(self, nome, pontos=0, level=0, raça=''):
+class Personagem:
+    def __init__(self, nome, level=0, raca=0):
         ##Variáveis GLobais
 
         #Dados do Personagem
         self.nome = nome
-        self.pontos = pontos
-        self.level = level
-        self.raça = raça
+    
 
         #Atributos do Personagem
         # Contem os atributos nessa ordem:
         # 0 - forca, 1 - habilidade, 2 - resistência, 3 - armadura, 4 - Poder de Fogo
         self.atributos = [0,0,0,0,0]
+        
 
         #Pontos de Vida e Magia do personagem, a variante "base" diz respeito aos pontos absolutos
         # antes de qualquer dano ou habilidade ser utilizada.
@@ -32,6 +32,12 @@ class personagem:
         self.inventário = []
         self.dinheiro = 0
         self.historia = ''
+
+        #Dados Reservados
+        self.pontos = 0
+        self.level = level
+        self.raca = raca
+        
     
     #Getter Level
     @property
@@ -40,10 +46,10 @@ class personagem:
 
     #Atribui nível ao jogador
     @level.setter
-    def level(self, level: int):
+    def level(self, level):
         referencia = [4, 5, 7, 10, 12]
-        self.pontos = referencia[level-1]
-        self._level = level
+        self.pontos = referencia[int(level)-1]
+        self._level = int(level)
         logging.info(f'Level e Pontos atribuidos. Resultado: level={self.level}, pontos={self.pontos}')
 
     #Getter Pontos
@@ -59,45 +65,49 @@ class personagem:
         else:
             self._pontos = pontos
 
-    #Getter Raça
+    #Getter raca
     @property
-    def raça(self):
-        return self._raça
+    def raca(self):
+        return self._raca
 
-    #Seleciona a raça do jogador, atualiza os pontos e características
-    @raça.setter
-    def raça(self, raça):
-        if raça == 0:
-            self._raça = 'Humano'
-        elif raça in range(1, 36):
-            self._raça = nome_raça(raça)
-            self.pontos = self.pontos - custo_raça(raça)
-            self.características = característica_raça(raça)
-            self.aplicar_modificadores(modificador_raça(raça))
-        logging.info(f'Raça atribuida: {self.raça}')
+    #Seleciona a raca do jogador, atualiza os pontos e características
+    @raca.setter
+    def raca(self, raca):
+        raca = int(raca)
+        if raca == 0:
+            self._raca = raca
+        elif raca in range(1, 36):
+            self._raca = raca
+            self.pontos = self.pontos - custo_raca(raca)
+            self.características = característica_raca(raca)
+            self.aplicar_modificadores(modificador_raca(raca))
+        logging.info(f'raca atribuida: {nome_raca(raca)}')
 
     ##Funções
 
     #Método retorna string formatada para impressão
     def dados(self, dado='full'):
         #Pode retornar string referente a dados básicos, atributos, características ou todos
-        referencia = {'atributos':\
-            'Seus atributos são:\n'+\
-            f'[F]orça - {self.atributos[0]}\n'+\
-            f'[H]abilidade - {self.atributos[1]}\n'+\
-            f'[R]esistência - {self.atributos[2]}\n'+\
-            f'[A]rmadura - {self.atributos[3]}\n'+\
-            f'[P]oder de Fogo - {self.atributos[4]}\n',
-            'básicos':\
-            f'Nome: {self.nome}\n'+\
-            f'Nível: {self.level}\n'+\
-            f'Raça: {self.raça}\n'+\
-            f'Pontos de Vida: {self.pontos_vida_base}\n'+\
-            f'Pontos de Magia: {self.pontos_magia_base}\n',
-            'características' : f'Características: {self.características}\n'}
+        referencia = {
+            'básico':{
+                'Nome': self.nome,
+                'Nível': self.level,
+                'raca': nome_raca(self.raca),
+                'Pontos de Vida': self.pontos_vida_base,
+                'Pontos de Magia': self.pontos_magia_base
+            },
+            'atributos':{
+                'Força': self.atributos[0],
+                'Habilidade': self.atributos[1],
+                'Resistência': self.atributos[2],
+                'Armadura': self.atributos[3],
+                'Poder de Fogo': self.atributos[4]
+            },
+            'características' : self.características
+        }
         if dado == 'full':
             logging.info(f'Retornando ficha completa')
-            return referencia['básicos'] + referencia['atributos'] + referencia['características']
+            return referencia
         else:
             logging.info(f'Retornando parte da ficha: {dado}')
             return referencia[dado]
@@ -120,27 +130,29 @@ class personagem:
                 self.modificar_atributos(i[0],int(i[2]),(i[1]=='+'))
         logging.info(f'Modificadores Aplicados: {str(n)}')
 
-    #Distribui os pontos do personagem
-    def distribuir_pontos(self, atributo, valor=1):
-        #Autorizar compra
-        valor = int(valor)
-        self.modificar_atributos(atributo, valor) 
-        self.pontos -= valor         
+    #Distribui os pontos do personagem. Deve ser entregue uma lista contendo strings relativas 
+    # aos atributos a serem alterados. Essas strings strings devem seguir o mesmo padrão
+    # dos modificadores. Exemplo: ['H+1', 'R+2']
+    def distribuir_pontos(self, atributos: list):
+        for item in atributos:
+            self.aplicar_modificadores(item)
+            self.pontos -= int(item[2])         
 
-    #Permite comprar características utilizando pontos
-    def comprar_característica(self, característica):
+    #Permite comprar características utilizando pontos. Deve entregue uma lista contendo integers
+    # referentes a cada característica a ser comprada
+    def comprar_característica(self, características: list):
         #Autorizar compra
-        sel = int(característica)
-        if sel in range(1, 138):
-            nome = nome_característica(sel)
-            custo = custo_característica(sel)
-            if (nome in self.características) and (not multipla_característica(sel)):
-                raise OverflowError('Característica única já existe')
+        for sel in características:
+            if sel in range(1, 138):
+                nome = nome_característica(sel)
+                custo = custo_característica(sel)
+                if (nome in self.características) and (not multipla_característica(sel)):
+                    raise OverflowError('Característica única já existe')
+                else:
+                    self.características.append(nome)
+                    self.pontos -= custo
             else:
-                self.características.append(nome)
-                self.pontos -= custo
-        else:
-            raise ValueError('Essa oção não existe')
+                raise ValueError('Essa oção não existe')
 
     ##Métodos
 
@@ -166,79 +178,76 @@ class personagem:
         self.pontos_magia = self.pontos_magia_base
         logging.info(f'Pontos de Magia calculados. Resultado: {self.pontos_magia}')
 
+from meta import acessdata
                 
 #Cria Personagem
-def criar(nome: str, level: int, raça: int):
-    per = personagem(nome)
-    per.level = level
-    per.raça = raça
-    # comprar_característica(personagem)
-    # distribuir_pontos(personagem)
+def criar(nome: str, level: int, raca: int, características: list, atributos: list):
+    per = Personagem(nome, level, raca)
+    per.comprar_característica(características)
+    per.distribuir_pontos(atributos)
     per.calcular_pontos_vida()
     per.calcular_pontos_magia()
     logging.info(f'Personagem Criado. Nome:{per.nome}')
     return per
-
-
 
 #Retorna o nome da Vantagem ou Desvantagem dada em "n"            
 def nome_característica(n): 
     tabela = 'características'
     dado = 'nome'
     logging.info(f'Retornando nome da característica {n}')
-    return meta.acessdata(tabela, dado, n)
+    return acessdata(tabela, dado, n)
 
 #Retorna Valor da Vantagem ou Desvantagem dada em "n" 
 def custo_característica(n):
     tabela = 'características'
     dado = 'custo'
     logging.info(f'Retornando custo da característica {n}')
-    return int(meta.acessdata(tabela, dado, n))
+    return int(acessdata(tabela, dado, n))
 
 #Retorna se a Vantagem ou Desvantagem dada em "n" pode ser comprada multiplas vezes
 def multipla_característica(n):
     tabela = 'características'
     dado = 'multiplas'
     logging.info(f'Retornando se {n} é multipla')
-    if  meta.acessdata(tabela, dado, n) == 'True' :
+    if  acessdata(tabela, dado, n) == 'True' :
         return True
     else:
         return False
 
-#Retorna o nome da Raça dada em "n"
-def nome_raça(n):
+#Retorna o nome da raca dada em "n"
+def nome_raca(n):
     tabela = 'racas'
     dado = 'nome'
-    logging.info(f'Retornando o nome da Raça {n}')
-    return meta.acessdata(tabela, dado, n)
+    logging.info(f'Retornando o nome da raca {n}')
+    return acessdata(tabela, dado, n)
 
-#Retorna o custo em pontos da Raça dada em "n" 
-def custo_raça(n):
+#Retorna o custo em pontos da raca dada em "n" 
+def custo_raca(n):
     tabela = 'racas'
     dado = 'custo'
-    logging.info(f'Retornando o custo da raça {n}')
-    return int(meta.acessdata(tabela, dado, n))
+    logging.info(f'Retornando o custo da raca {n}')
+    return int(acessdata(tabela, dado, n))
 
-#Retorna lista de Vantagens e Desvantagens da Raça dada em "n"
-def característica_raça(n):
+#Retorna lista de Vantagens e Desvantagens da raca dada em "n"
+def característica_raca(n):
     tabela = 'racas'
     dado = 'Vantagens/Desvantagens'
-    car = meta.acessdata(tabela, dado, n)
+    car = acessdata(tabela, dado, n)
     car = car.split(';')
     lst = []
     for i in car:
         lst.append(nome_característica(int(i)))
-    logging.info(f'Retornando lista de características da raça {n}')
+    logging.info(f'Retornando lista de características da raca {n}')
     return lst
 
-#Retorna lista de motificadores da Raça dada em "n"
-def modificador_raça(n):
+#Retorna lista de motificadores da raca dada em "n"
+def modificador_raca(n):
     tabela = 'racas'
     dado = 'Modificadores'
-    modificador_temp = meta.acessdata(tabela, dado, n)
+    modificador_temp = acessdata(tabela, dado, n)
     modificador_temp = modificador_temp.split(';')
     lst = []
     for i in modificador_temp:
         lst.append(i)
-    logging.info(f'Retornando lista de modificadores da raça {n}')
+    logging.info(f'Retornando lista de modificadores da raca {n}')
     return lst

@@ -1,24 +1,23 @@
-from pickle import dump, load
+import pickle
+import json
 import csv
 import logging
+from ficha import Personagem
 
-ref = {'personagem':'.per','mapa':'.map'}
+ref = {Personagem:'.per'}
+
 
 #Salva Objeto em Arquivo
-def save_obj(p):
-    ps = str(type(p))
-    ps = ps.replace("class ", "")
-    ps = ps.strip("<>'")
-    ps = ps.split('.')
-    for i in ps:
-        if i in ref:
-            with open(f'{p.nome}{ref[i]}', 'wb') as arquivo:
-                dump(p, arquivo)
+def save_obj(objeto):
+    for classe in ref:
+        if isinstance(objeto, classe):
+            with open(f'{objeto.nome}{ref[classe]}', 'wb') as arquivo:
+                    pickle.dump(objeto, arquivo)
 
 #Carrega Objeto de Arquivo
-def load_obj(p, t):
-    with open(f'{p}{ref[t]}', 'rb') as arquivo:
-                return load(arquivo)
+def load_obj(objeto_nome, objeto_tipo):
+    with open(f'{objeto_nome}{ref[objeto_tipo]}', 'rb') as arquivo:
+        return pickle.load(arquivo)
 
 #Acessa dados nas tabelas indexadas em "refdados". Onde "tipo_dado" é a tabela indexada,
 #"dado" corresponde a coluna e "item" corresponde a linha na tabela.
@@ -43,3 +42,4 @@ def acessdata(tipo_dado, dado, item):
                     return linha[col]
                 
                 count1 += 1
+
