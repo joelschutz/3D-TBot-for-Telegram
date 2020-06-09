@@ -1,128 +1,122 @@
-import logging
+from pyrogram import Client, MessageHandler, Filters, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+import meta, inspect, logging
 import ficha
 
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
 
-API_TOKEN = 'TOKEN DO SEU BOT'
+app = Client("3d&tbot")
+player = {}
+personagem = {}
 
-#Configura logging
 logging.basicConfig(level=logging.INFO)
 
-#Inicializa bot e dispatcher
-storage = MemoryStorage()
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot, storage = storage)
-per = []
-
-#Declara Estados do programa
-class Criar(StatesGroup):
-    nome = State()  # Nome do personagem
-    level = State()  # Level do Personagem
-    raca = State()  # Raça do personagem
-
-
-#Função de prova de conceito
-# Essa função assiste o usuário a cria um personagem quando o comando /criar é enviado.
-@dp.message_handler(commands = 'criar')
-async def criar(message: types.Message):
-    await message.reply('Oba, vamos criar um personagem novo.')
-    await Criar.nome.set()
-    await message.reply('Qual vai ser o nome do seu personagem')
-    # old style:
-    # await bot.send_message(message.chat.id, message.text)
-    # nome = message.text
-    # nome = nome.replace('/criar ', '')
-    # if nome in players:
-    #     await message.answer('Esse personagem já existe:\n' + players[nome].dados())
-    # else:
-    #     players[nome] = ficha.criar(nome, 1, count*2)
-    #     count += 1
-    #     await message.answer(players[nome].dados())
-
-#Permite que o usuário cancele o processo
-@dp.message_handler(state='*', commands='cancel')
-@dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
-async def cancel_handler(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-
-    logging.info('Cancelling state %r', current_state)
-    # Cancel state and inform user about it
-    await state.finish()
-    # And remove keyboard (just in case)
-    await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
-
-#Processa nome do personagem e segue para o proximo item: level
-@dp.message_handler(state=Criar.nome)
-async def process_name(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['nome'] = message.text
+#Classe Criar Personagem. É utilizada pelo bot para receber e armazenar os inputs do usuário necessários
+# para criar um nome personagem.
+class CriarPersonagem:
+    def __init__(self, user):
+        self.state = 0
+        self.user = user
+        self.nome = 'null'
+        self.level = 0
+        self.raça = 0
     
-    #Cria teclado com opções de 1 a 5
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-    for n in range(1,6):
-        markup.add(str(n))
-
-    await Criar.next()
-    await message.reply("E qual o level dele?", reply_markup=markup)
-
-#Processa level do personagem e segue para o proximo item: raca
-@dp.message_handler(state=Criar.level)
-async def process_level(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['level'] = int(message.text)
-        logging.info(f'Recebendo Level: {message.text}')
-
-    markup = types.ReplyKeyboardRemove()
+    def definir_nome(self, nome):
+        self.nome = nome
     
-    #Cria teclado com 10 opções de raças
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-    for n in range(1,11):
-        markup.add(f'{n}.{ficha.nome_raca(n)}')
-
-    await Criar.next()
-    await message.reply("E qual a raça dele?", reply_markup=markup)
-
-#Processa raça do personagem e cria personagem
-@dp.message_handler(state=Criar.raca)
-async def process_raca(message: types.Message, state: FSMContext):
+    def definir_level(self, level):
+        self.level = level
     
-    async with state.proxy() as data:
-        raca = message.text.split('.')
-        logging.info(f'Identificando raça. {raca}')
-        data['raca'] = int(raca[0])
+    @staticmethod
+    def teclado_level():
+        teclas = []
+        for n in range(1,6):
+            teclas.append([KeyboardButton(str(n))])
+        print(teclas)
+        return ReplyKeyboardMarkup(teclas)
+    
+    def definir_raça(self, raça):
+        self.raça = raça
 
-    markup = types.ReplyKeyboardRemove()
-    logging.info(f"Criando personagem com os dados. Nome: {data['nome']}, level: {data['level']}, raça:{data['raca']}")
-    per.append(ficha.criar(data['nome'], data['level'], data['raca'], [],[]))
+    @staticmethod
+    def teclado_raça():
+        teclas = []
+        for n in range(1,11):
+            raça = ficha.nome_raca(n)
+            teclas.append([KeyboardButton(f'{n}.{raça}')])
+        print(teclas)
+        return ReplyKeyboardMarkup(teclas)
 
-    await message.reply("Para as informações do seu personagem mande /print", reply_markup=markup)
-    await state.finish()
+    @staticmethod
+    def teclado_s_n():
+        teclas = [['Sim', 'Não']]
+        return ReplyKeyboardMarkup(teclas)
 
-#Função que imprime o ultimo personagem criado ao receber o comando /print
-@dp.message_handler(commands = 'print')
-async def print(message: types.Message):
-    info = per[len(per)-1].dados()
-    mensagem = f"\
-    Nome: {info['básico']['Nome']}\n\
-    Level: {info['básico']['Nível']}\n\
-    Raça: {info['básico']['raca']}\n\
-    Atributos:\n\
-    Força - {info['atributos']['Força']}\n\
-    Habilidade - {info['atributos']['Habilidade']}\n\
-    Resistência - {info['atributos']['Resistência']}\n\
-    Armadura - {info['atributos']['Armadura']}\n\
-    Poder de Fogo - {info['atributos']['Poder de Fogo']}\n\
-    Características: {info['características']}"
+    def finalizar(self):
+        return ficha.criar(self.nome, self.level, self.raça, [], [])
 
-    await message.answer(mensagem)
+#Recebe o comando "/criar" e inicia o processo de criação do personagem
+@app.on_message(Filters.command("criar"))
+def criar(client, message):
+    chat = message.chat['id']
+    app.send_message(chat, 'Oba, vamos criar um personagem novo.\nQual vai ser o nome do seu personagem?')
+    player[chat] = CriarPersonagem(chat)
+    player[chat].state += 1
+    logging.info(f'Criando personagem para o chat:{player[chat].user}. Estado atual: {player[chat].state}')
 
+#Recebe os dados enviados pelo usuário e cria personagem com os dados recebidos 
+@app.on_message()
+def criar_personagem(client, message):
+    try:
+        chat = message.chat['id']
+        state = player[chat].state
+        logging.info(f'Configurando personagem para o chat:{player[chat].user}. Estado atual: {player[chat].state}')
+        if state == 1 and chat == player[chat].user:
+            player[chat].definir_nome(message.text) 
+            app.send_message(chat, 'Lindo nome.\nE qual o level?', reply_markup=CriarPersonagem.teclado_level())
+            player[chat].state += 1
+            logging.info(f'Definindo nome:{player[chat].nome} para o personagem do chat:{player[chat].user}. Estado atual: {player[chat].state}')
+        elif state == 2:
+            player[chat].definir_level(int(message.text))
+            app.send_message(chat, 'Beleza.\nE qual a raça?', reply_markup=CriarPersonagem.teclado_raça())
+            player[chat].state += 1
+            logging.info(f'Definindo level:{player[chat].level} para o personagem do chat:{player[chat].user}. Estado atual: {player[chat].state}')
+        elif state == 3:
+            raça = message.text.split('.')
+            raça = int(raça[0])
+            player[chat].definir_raça(raça)
+            logging.info(f'Definindo raça:{player[chat].raça} para o personagem do chat:{player[chat].user}. Estado atual: {player[chat].state}')
+            app.send_message(chat, 'Tudo pronto', reply_markup=ReplyKeyboardRemove())
+            player[chat].state += 1
+            personagem[chat] = player[chat].finalizar()
+            logging.info(f'Finalizando personagem do chat {player[chat]}')
+            info = personagem[chat].dados()
+            app.send_message(chat, inspect.cleandoc(f"""
+            Nome: {info['básico']['Nome']}
+            Level: {info['básico']['Nível']}
+            Raça: {info['básico']['raca']}
+            Atributos:
+            Força - {info['atributos']['Força']}
+            Habilidade - {info['atributos']['Habilidade']}
+            Resistência - {info['atributos']['Resistência']}
+            Armadura - {info['atributos']['Armadura']}
+            Poder de Fogo - {info['atributos']['Poder de Fogo']}
+            Características: {info['características']}
+            """))
+            app.send_message(chat, 'Deseja salvar esse personagem?', reply_markup=CriarPersonagem.teclado_s_n())
+        elif state == 4:
+            if message.text == 'Sim':
+                stock = ficha.StockPersonagem(chat)
+                stock.incluir_personagem(personagem[chat])
+                meta.save_obj(stock)
+                app.send_message(chat, 'Personagem Salvo', reply_markup=ReplyKeyboardRemove())
+            else:
+                personagem.pop(chat)
+                app.send_message(chat, 'Personagem Apagado', reply_markup=ReplyKeyboardRemove())
+    except:
+        pass
 
+#Imprime no log as mensagens recebidas para fim de debug
+@app.on_message(group = 1)
+def imprimir(client, message):
+    logging.info(f'Mensagem recebida: {message.text}')
 
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+app.run()

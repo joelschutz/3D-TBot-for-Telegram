@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 .vscode/settings.json
 
+config.ini
+3d&tbot.session
+minha_conta.session
+tempCodeRunnerFile.py

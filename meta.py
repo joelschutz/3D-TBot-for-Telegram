@@ -2,9 +2,9 @@ import pickle
 import json
 import csv
 import logging
-from ficha import Personagem
+import ficha
 
-ref = {Personagem:'.per'}
+ref = {ficha.Personagem:'.per', ficha.StockPersonagem:'.sper'}
 
 
 #Salva Objeto em Arquivo

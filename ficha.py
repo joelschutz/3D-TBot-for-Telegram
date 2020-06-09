@@ -1,4 +1,5 @@
 import logging
+import meta
 
 
 
@@ -178,7 +179,16 @@ class Personagem:
         self.pontos_magia = self.pontos_magia_base
         logging.info(f'Pontos de Magia calculados. Resultado: {self.pontos_magia}')
 
-from meta import acessdata
+#classe StockPersonagem
+class StockPersonagem:
+    def __init__(self, id):
+        self.nome = id
+        self.personagens = []
+    
+    def incluir_personagem(self, personagem: Personagem):
+        self.personagens.append(personagem)
+    
+    
                 
 #Cria Personagem
 def criar(nome: str, level: int, raca: int, características: list, atributos: list):
@@ -195,21 +205,21 @@ def nome_característica(n):
     tabela = 'características'
     dado = 'nome'
     logging.info(f'Retornando nome da característica {n}')
-    return acessdata(tabela, dado, n)
+    return meta.acessdata(tabela, dado, n)
 
 #Retorna Valor da Vantagem ou Desvantagem dada em "n" 
 def custo_característica(n):
     tabela = 'características'
     dado = 'custo'
     logging.info(f'Retornando custo da característica {n}')
-    return int(acessdata(tabela, dado, n))
+    return int(meta.acessdata(tabela, dado, n))
 
 #Retorna se a Vantagem ou Desvantagem dada em "n" pode ser comprada multiplas vezes
 def multipla_característica(n):
     tabela = 'características'
     dado = 'multiplas'
     logging.info(f'Retornando se {n} é multipla')
-    if  acessdata(tabela, dado, n) == 'True' :
+    if  meta.acessdata(tabela, dado, n) == 'True' :
         return True
     else:
         return False
@@ -219,20 +229,20 @@ def nome_raca(n):
     tabela = 'racas'
     dado = 'nome'
     logging.info(f'Retornando o nome da raca {n}')
-    return acessdata(tabela, dado, n)
+    return meta.acessdata(tabela, dado, n)
 
 #Retorna o custo em pontos da raca dada em "n" 
 def custo_raca(n):
     tabela = 'racas'
     dado = 'custo'
     logging.info(f'Retornando o custo da raca {n}')
-    return int(acessdata(tabela, dado, n))
+    return int(meta.acessdata(tabela, dado, n))
 
 #Retorna lista de Vantagens e Desvantagens da raca dada em "n"
 def característica_raca(n):
     tabela = 'racas'
     dado = 'Vantagens/Desvantagens'
-    car = acessdata(tabela, dado, n)
+    car = meta.acessdata(tabela, dado, n)
     car = car.split(';')
     lst = []
     for i in car:
@@ -244,7 +254,7 @@ def característica_raca(n):
 def modificador_raca(n):
     tabela = 'racas'
     dado = 'Modificadores'
-    modificador_temp = acessdata(tabela, dado, n)
+    modificador_temp = meta.acessdata(tabela, dado, n)
     modificador_temp = modificador_temp.split(';')
     lst = []
     for i in modificador_temp:
