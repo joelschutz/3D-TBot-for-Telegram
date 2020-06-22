@@ -1,4 +1,4 @@
-Nome,Custo,Multiplas,Ativa,Passiva
+Name,Cost,Multi,Ative,Passive
 Aceleração,1,False,True,True
 Adaptador,1,False,False,True
 Aliado,1,True,False,True
