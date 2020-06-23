@@ -1,9 +1,12 @@
 '''
 This script contains the classes of characters
 '''
-import meta, inspect
-from mechanics import CharHandler, Inventory
-from exceptions import PointsError, ItemError
+import inspect
+from game.scripts.exceptions import CharAttributeError, ItemError, PointsError, SkillError
+
+import game.scripts.meta as mt
+from game.scripts.mechanics import CharHandler, Inventory
+
 
 #Character class is used as a template for more especific classes os characters
 class Character:
@@ -15,28 +18,24 @@ class Character:
         self._name = name
         self._exp = level * 100
         self._points = self.level * 10
-        self._profession = -1
+        self._profession = 0
 
-        #Atributos do Personagem
-        # Contem os atributos nessa ordem:
-        # 0 - Strength, 1 - Dexterity, 2 - Resistence, 3 - Intelligence, 4 - Agility, 5 - Charisma
+        #Attributes of the character
         self._attributes = {'Strength':0,
                             'Dexterity':0,
                             'Resistence':0,
                             'Intelligence':0,
                             'Agility':0,
                             'Charisma':0}
+        self._skills = []
 
-        #Pontos de Vida e Magia do personagem, a variante "base" diz respeito aos pontos absolutos
-        # antes de qualquer dano ou habilidade ser utilizada.
+        #HP and MP
         self._hp_base = self._calc_hp(self._attributes['Resistence'])
         self._hp_state = self._hp_base
         self._mp_base = self._calc_mp(self._attributes['Intelligence'])
         self._mp_state = self._mp_base
 
-        #Características do Personagem
-        
-        self._skills = []
+        #Additional information of the Character
         self.race = race
         self._inventory = Inventory()
         self.history = ''
@@ -65,23 +64,25 @@ class Character:
     def gain_exp(self, exp): self._exp += exp
 
     @property
-    def race(self): return meta.acessdata('races','name', self._race)
+    def race(self): return mt.acessdata('races','name', self._race)
 
+    #Modifies de Character Attibutes based on its race. 
+    # '0' is the humam race with no modifiers.
     @race.setter
     def race(self, race):
         if race == 0: self._race = 0
         else:
             self._race = race
-            self._points -= int(meta.acessdata('races','cost', race))
-            race_skills = meta.acessdata('races','skills', race)
+            self._points -= int(mt.acessdata('races','cost', race))
+            race_skills = mt.acessdata('races','skills', race)
             race_skills = race_skills.split(';')
             self.give_skills(*race_skills)
-            race_modifiers = meta.acessdata('races','Modifiers', race)
-            race_modifiers = meta.parse_modifiers(race_modifiers)
+            race_modifiers = mt.acessdata('races','Modifiers', race)
+            race_modifiers = mt.parse_modifiers(race_modifiers)
             self.give_attributes(**race_modifiers)
 
     @property
-    def profession(self): return meta.acessdata('profession','name', self._profession)
+    def profession(self): return mt.acessdata('profession','name', self._profession)
 
     @property
     def attributes(self): return self._attributes
@@ -89,9 +90,21 @@ class Character:
     @attributes.setter
     def attributes(self, attribute):
         try: self._attributes[attribute[0].capitalize()] += attribute[1]
-        except KeyError: raise SyntaxError(f'{attribute[0]} is not a valid attribute')
-        except TypeError: raise SyntaxError(f'{attribute[0].captalize()} value must be a "int"')
-        except AttributeError: raise ValueError(f'{attribute[0]} must be a "str"')
+        except KeyError: raise CharAttributeError(f'{attribute[0]} is not a valid attribute')
+        except TypeError: raise CharAttributeError(f'{attribute[0].captalize()} value must be a "int"')
+        except AttributeError: raise CharAttributeError(f'{attribute[0]} must be a "str"')
+
+    def buy_attributes(self, **kwargs):
+            for key, value in kwargs.items():
+                if self._have_points(value):
+                    self.attributes = (key, value)
+                    self.points -=  value
+                else: raise PointsError('Do not have enough points')
+
+    def give_attributes(self, **kwargs):
+        for key, value in kwargs.items():
+            try: self.attributes = (key, value)
+            except CharAttributeError: pass
 
     @property
     def hp(self): return (self._hp_base, self._hp_state)
@@ -100,6 +113,9 @@ class Character:
     def hp(self, value):
         self._hp_state += value
 
+    @staticmethod
+    def _calc_hp(resistance): return resistance * 5
+    
     @property
     def mp(self): return (self._mp_base, self._mp_state)
 
@@ -107,11 +123,14 @@ class Character:
     def mp(self, value):
         self._mp_state += value
 
+    @staticmethod
+    def _calc_mp(intelligence): return intelligence * 5
+
     @property
     def skills(self):
         list = []
         for skill in self._skills:
-            list.append(meta.acessdata('skills', 'name', skill))
+            list.append(mt.acessdata('skills', 'name', skill))
         return list
     
     @skills.setter
@@ -121,12 +140,12 @@ class Character:
             if skill > 0:
                 self._skills.append(skill)
             else:
-                raise ValueError('This skill do not exist')
-        except ValueError: raise TypeError('Characteistic must be a "int"')
+                raise SkillError('This skill do not exist')
+        except ValueError: raise SkillError('Characteistic must be a "int"')
     
     def buy_skills(self, *args):
         for skill in args:
-            cost = int(meta.acessdata('skills', 'cost', skill))
+            cost = int(mt.acessdata('skills', 'cost', skill))
             if self._have_points(cost):
                 self.points -= cost
                 self.skills = skill
@@ -135,26 +154,7 @@ class Character:
     def give_skills(self, *args):
         for skill in args:
             try: self.skills = skill
-            except TypeError: pass
-
-    def buy_attributes(self, **kwargs):
-        for key, value in kwargs.items():
-            if self._have_points(value):
-                self.attributes = (key, value)
-                self.points -=  value
-            else: raise PointsError('Do not have enough points')
-
-    def give_attributes(self, **kwargs):
-        for key, value in kwargs.items():
-            try: self.attributes = (key, value)
-            except SyntaxError: pass
-
-
-    @staticmethod
-    def _calc_hp(resistance): return resistance * 5
-
-    @staticmethod
-    def _calc_mp(intelligence): return intelligence * 5
+            except SkillError: pass
 
     def use(self, item, target=None):
         if not target:
@@ -170,13 +170,10 @@ class Character:
         Race: {self.race}
         Attributes: {self.attributes}
         Profession: {self._profession}
-        skills: {self.skills}
         Skills: {self.skills}
         Inventory: {self._inventory}
         History: {self.history}
         ''')
-
-
 
 class Player(Character):
     def __init__(self):

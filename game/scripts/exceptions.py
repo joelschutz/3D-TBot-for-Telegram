@@ -13,3 +13,9 @@ class LockedError(GameError):
 
 class PointsError(GameError):
     pass
+
+class CharAttributeError(GameError):
+    pass
+
+class SkillError(GameError):
+    pass

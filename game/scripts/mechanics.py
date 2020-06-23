@@ -1,9 +1,9 @@
 '''
 This module has all the mechanics of the game
 '''
-from exceptions import ItemError, LockedError, PointsError
+from game.scripts.exceptions import ItemError, LockedError, PointsError
 from collections import Counter
-import character, meta, itens
+import game.scripts.itens as itens
 
 class CharHandler:
    pass

@@ -22,9 +22,9 @@ def load_obj(p, t):
 #Acessa dados nas tabelas indexadas em "refdados". Onde "tipo_dado" é a tabela indexada,
 #"dado" corresponde a coluna e "item" corresponde a linha na tabela.
 def acessdata(tipo_dado, dado, item):
-    refdados = {'races':'races.csv', 
-                'skills':'skills.csv', 
-                'professions':'professions.csv'}
+    refdados = {'races':'game/races.csv', 
+                'skills':'game/skills.csv', 
+                'professions':'game/professions.csv'}
     tipo_dado = tipo_dado.lower()
     if item > 0:
         with open(refdados[tipo_dado], encoding="utf8") as csv_file:
